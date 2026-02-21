@@ -1,9 +1,18 @@
+using DecisionMaker.Data;
+using Microsoft.EntityFrameworkCore;
+using DecisionMaker.Services;
+using DecisionMaker.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<JwtService>();
 
 var app = builder.Build();
 
@@ -35,6 +44,47 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+app.MapPost("/register", async (
+    RegisterRequest req,
+    AppDbContext db
+) =>
+{
+    if (await db.Users.AnyAsync(u => u.Email == req.Email))
+        return Results.BadRequest("Email already exists");
+
+    var user = new User
+    {
+        Username = req.Username,
+        Email = req.Email,
+        PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password)
+    };
+
+    db.Users.Add(user);
+    await db.SaveChangesAsync();
+
+    return Results.Ok("User registered");
+});
+
+app.MapPost("/login", async (
+    LoginRequest req,
+    AppDbContext db,
+    JwtService jwt
+) =>
+{
+    var user = await db.Users
+        .FirstOrDefaultAsync(u => u.Email == req.Email);
+
+    if (user == null ||
+        !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
+    {
+        return Results.BadRequest("Invalid credentials");
+    }
+
+    var token = jwt.GenerateToken(user);
+
+    return Results.Ok(new { token });
+});
 
 app.Run();
 
