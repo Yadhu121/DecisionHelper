@@ -1,0 +1,255 @@
+﻿@{
+    ViewData["Title"] = "Results";
+    var results = ViewBag.Results as Dictionary<string, double>;
+    string flairName = ViewBag.FlairName ?? "";
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    body {
+        background: #f0faf4;
+    }
+
+    .result-card {
+        transition: transform 0.2s;
+    }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+        }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+</style>
+
+@if (results != null && results.Any())
+{
+    var resultList = results.ToList();
+    var winner = resultList[0];
+    var runnerUp = resultList.Count > 1 ? resultList[1] : (KeyValuePair<string, double>?)null;
+    var third = resultList.Count > 2 ? resultList[2] : (KeyValuePair<string, double>?)null;
+    var rest = resultList.Count > 3 ? resultList.Skip(3).ToList() : null;
+    double maxScore = winner.Value;
+    double minScore = resultList.Last().Value;
+    double scoreRange = maxScore - minScore;
+
+    <div class="flex justify-center pt-[15vh]">
+        <h2 class="text-4xl sm:text-6xl md:text-9xl font-bold tracking-tight"
+            style="font-family:'Betania Patmos',serif; color:#2D6A4F;">
+            Decision <span style="color:#52B788">Made.</span>
+        </h2>
+    </div>
+
+    @if (!string.IsNullOrEmpty(flairName))
+    {
+        <p class="text-center text-sm mt-2" style="color:#52B788;font-family:'Space Mono',monospace;">
+            @flairName
+        </p>
+    }
+
+<div class="text-center mt-12 px-4">
+    <p style="font-family:'Space Mono',monospace;font-size:13px;color:#52B788;letter-spacing:0.1em;">
+        WINNER
+    </p>
+    <h1 style="font-family:'Betania Patmos',serif;font-size:clamp(2.5rem,8vw,5rem);
+                   font-weight:800;color:#1B4332;margin:8px 0 4px;">
+        1 @winner.Key
+    </h1>
+    <p style="font-family:'Space Mono',monospace;font-size:13px;color:#2D6A4F;">
+        Score: @winner.Value.ToString("F4")
+    </p>
+    <p style="font-family:'Space Mono',monospace;font-size:12px;color:#52B788;margin-top:4px;">
+        Best overall match
+    </p>
+</div>
+
+<div class="max-w-lg mx-auto px-4 mt-8"
+     style="background:#fff;border-radius:20px;box-shadow:0 4px 20px rgba(45,106,79,0.10);padding:24px 28px;">
+    <p style="font-family:'Space Mono',monospace;font-size:11px;color:#52B788;
+              letter-spacing:0.1em;margin-bottom:16px;">WHY THIS WON</p>
+
+    @if (runnerUp.HasValue)
+    {
+        double lead = winner.Value - runnerUp.Value.Value;
+        double leadPct = maxScore > 0 ? (lead / maxScore) * 100 : 100;
+        <p style="font-family:'Space Mono',monospace;font-size:13px;color:#2D6A4F;margin-bottom:20px;line-height:1.6;">
+            <span style="color:#1B4332;font-weight:700;">@winner.Key</span>
+            scored <span style="color:#1B4332;font-weight:700;">@leadPct.ToString("F1")%</span> higher than
+            <span style="color:#2D6A4F;font-weight:600;">@runnerUp.Value.Key</span>.
+        </p>
+    }
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+        @foreach (var item in resultList.Take(Math.Min(resultList.Count, 5)))
+        {
+            double barWidth = scoreRange > 0
+                ? ((item.Value - minScore) / scoreRange) * 80 + 20
+                : 100;
+            bool isWinner = item.Key == winner.Key;
+
+            <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                    <span style="font-family:'Betania Patmos',serif;font-size:14px;
+                                 font-weight:@(isWinner ? "800" : "600");
+                                 color:@(isWinner ? "#1B4332" : "#52B788");">
+                        @(isWinner ? " " : "")@item.Key
+                    </span>
+                    <span style="font-family:'Space Mono',monospace;font-size:12px;
+                                 color:@(isWinner ? "#1B4332" : "#2D6A4F");
+                                 font-weight:@(isWinner ? "700" : "400");">
+                        @item.Value.ToString("F4")
+                    </span>
+                </div>
+                <div style="background:#D8F3DC;border-radius:999px;height:8px;">
+                    <div style="width:@barWidth.ToString("F1")%;
+                                background:@(isWinner ? "#2D6A4F" : "#95D5B2");
+                                height:8px;border-radius:999px;">
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (resultList.Count > 1)
+    {
+        double totalGap = winner.Value - resultList.Last().Value;
+        <p style="font-family:'Space Mono',monospace;font-size:11px;color:#95D5B2;
+                  margin-top:16px;text-align:right;">
+            Total spread across all options: @totalGap.ToString("F4")
+        </p>
+    }
+</div>
+
+    @if (runnerUp.HasValue || third.HasValue)
+    {
+        <div class="max-w-lg mx-auto px-4 mt-10 space-y-4">
+            @if (runnerUp.HasValue)
+            {
+                <div class="result-card" style="background:#fff;border-radius:16px;
+                                        box-shadow:0 4px 16px rgba(45,106,79,0.1);padding:20px 24px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div>
+                            <p style="font-size:11px;color:#52B788;font-family:'Space Mono',monospace;
+                                                  letter-spacing:0.08em;margin-bottom:4px;">RUNNER UP</p>
+                            <p style="font-size:20px;font-weight:700;color:#1B4332;
+                                                  font-family:'Betania Patmos',serif;">
+                                2 @runnerUp.Value.Key
+                            </p>
+                        </div>
+                        <span style="font-family:'Space Mono',monospace;font-size:15px;
+                                                 font-weight:700;color:#2D6A4F;">
+                            @runnerUp.Value.Value.ToString("F4")
+                        </span>
+                    </div>
+                    <div style="margin-top:12px;background:#D8F3DC;border-radius:999px;height:6px;">
+                        <div style="width:@(Math.Min(runnerUp.Value.Value * 100, 100).ToString("F1"))%;
+                                                background:#52B788;height:6px;border-radius:999px;">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (third.HasValue)
+            {
+                <div class="result-card" style="background:#fff;border-radius:16px;
+                                        box-shadow:0 4px 16px rgba(45,106,79,0.08);padding:20px 24px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div>
+                            <p style="font-size:11px;color:#52B788;font-family:'Space Mono',monospace;
+                                                  letter-spacing:0.08em;margin-bottom:4px;">3RD PLACE</p>
+                            <p style="font-size:18px;font-weight:700;color:#1B4332;
+                                                  font-family:'Betania Patmos',serif;">
+                                3 @third.Value.Key
+                            </p>
+                        </div>
+                        <span style="font-family:'Space Mono',monospace;font-size:14px;
+                                                 font-weight:700;color:#2D6A4F;">
+                            @third.Value.Value.ToString("F4")
+                        </span>
+                    </div>
+                    <div style="margin-top:12px;background:#D8F3DC;border-radius:999px;height:6px;">
+                        <div style="width:@(Math.Min(third.Value.Value * 100, 100).ToString("F1"))%;
+                                                background:#95D5B2;height:6px;border-radius:999px;">
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (rest != null && rest.Any())
+    {
+        <div class="max-w-lg mx-auto px-4 mt-4">
+            <button onclick="toggleRest()"
+                    style="width:100%;padding:12px;border-radius:999px;
+                                   border:2px solid #2D6A4F;background:#fff;
+                                   color:#2D6A4F;font-family:'Space Mono',monospace;
+                                   font-size:13px;cursor:pointer;"
+                    id="toggleBtn">
+                Show remaining @rest.Count results ↓
+            </button>
+            <div id="restResults" style="display:none;margin-top:12px;space-y:8px;">
+                @{
+                    int restRank = 3;
+                }
+                @foreach (var r in rest)
+                {
+                    restRank++;
+                    <div class="result-card" style="background:#fff;border-radius:16px;
+                                            box-shadow:0 2px 8px rgba(45,106,79,0.06);
+                                            padding:16px 24px;margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <p style="font-size:16px;font-weight:600;color:#2D6A4F;
+                                                  font-family:'Betania Patmos',serif;">
+                                #@restRank @r.Key
+                            </p>
+                            <span style="font-family:'Space Mono',monospace;font-size:13px;color:#2D6A4F;">
+                                @r.Value.ToString("F4")
+                            </span>
+                        </div>
+                        <div style="margin-top:10px;background:#D8F3DC;border-radius:999px;height:4px;">
+                            <div style="width:@(Math.Min(r.Value * 100, 100).ToString("F1"))%;
+                                                    background:#B7E4C7;height:4px;border-radius:999px;">
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p class="text-center mt-20 text-gray-500" style="font-family:'Space Mono',monospace;">
+        No results found.
+    </p>
+}
+
+<div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:999;">
+    <a href="/Decision"
+       style="font-family:'Space Mono',monospace;
+              padding:14px 36px;
+              border-radius:999px;
+              background:#2D6A4F;
+              color:#fff;
+              font-size:15px;
+              font-weight:600;
+              text-decoration:none;
+              box-shadow:0 8px 24px rgba(45,106,79,0.35);
+              display:inline-block;">
+        + New Decision
+    </a>
+</div>
+
+<script>
+    function toggleRest() {
+        const el = document.getElementById("restResults");
+        const btn = document.getElementById("toggleBtn");
+        const isHidden = el.style.display === "none";
+        el.style.display = isHidden ? "block" : "none";
+        btn.textContent = isHidden ? "Hide ↑" : `Show remaining ${el.children.length} results ↓`;
+    }
+</script>

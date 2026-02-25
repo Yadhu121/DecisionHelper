@@ -1,6 +1,0 @@
-@DecisionMaker_HostAddress = http://localhost:5253
-
-GET {{DecisionMaker_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

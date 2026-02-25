@@ -1,0 +1,186 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using DecisionHelper.Models;
+using DecisionHelper.Services;
+using DecisionHelper.Data;
+
+namespace DecisionHelper.Controllers
+{
+    public class DecisionController : Controller
+    {
+        private readonly DecisionService _service = new();
+        private readonly AppDbContext _db;
+
+        public DecisionController(AppDbContext db)
+        {
+            _db = db;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var flairs = await _db.Flairs.ToListAsync();
+            ViewBag.Flairs = flairs;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Recommendations(int flairId)
+        {
+            var top5 = await _db.DecisionRecords
+                .Where(r => r.FlairId == flairId)
+                .GroupBy(r => r.WinningOption)
+                .Select(g => new { Option = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(5)
+                .ToListAsync();
+
+            return Json(top5);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RecommendationsByName(string flairName)
+        {
+            var flair = await _db.Flairs
+                .FirstOrDefaultAsync(f => f.Name.ToLower() == flairName.ToLower());
+
+            if (flair == null) return Json(new List<object>());
+
+            var top5 = await _db.DecisionRecords
+                .Where(r => r.FlairId == flair.Id)
+                .GroupBy(r => r.WinningOption)
+                .Select(g => new { Option = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(5)
+                .ToListAsync();
+
+            return Json(top5);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> TopOptions(int flairId)
+        {
+            var top5 = await _db.DecisionOptions
+                .Where(o => o.FlairId == flairId)
+                .GroupBy(o => o.OptionName)
+                .Select(g => new { Option = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(5)
+                .ToListAsync();
+
+            return Json(top5);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Calculate(IFormCollection form)
+        {
+            if (!int.TryParse(form["optionCount"], out int optionCount))
+                return Content("Score table was not generated. Please go back and click 'Generate Score Table'.");
+
+            if (!int.TryParse(form["criterionCount"], out int criterionCount))
+                return Content("Score table was not generated. Please go back and click 'Generate Score Table'.");
+
+            var options = new List<Options>();
+            var criteria = new List<Criterion>();
+            var scores = new List<ScoreEntry>();
+            var choices = new List<ChooseFromTwo>();
+
+            int flairId = 0;
+            string flairName = form["flairName"].ToString().Trim();
+            if (!string.IsNullOrEmpty(flairName))
+            {
+                var flair = await _db.Flairs
+                    .FirstOrDefaultAsync(f => f.Name.ToLower() == flairName.ToLower());
+
+                if (flair == null)
+                {
+                    flair = new Flair { Name = flairName };
+                    _db.Flairs.Add(flair);
+                    await _db.SaveChangesAsync();
+                }
+                flairId = flair.Id;
+            }
+
+            for (int o = 1; o <= optionCount; o++)
+            {
+                options.Add(new Options { Name = form[$"option{o}"].ToString() });
+            }
+
+            for (int c = 1; c <= criterionCount; c++)
+            {
+                bool isHigher = form[$"higher{c}"].ToString() == "true";
+                criteria.Add(new Criterion
+                {
+                    Name = form[$"criterion{c}"].ToString(),
+                    IsHigher = isHigher,
+                    Weight = 0
+                });
+            }
+
+            for (int o = 1; o <= optionCount; o++)
+            {
+                for (int c = 1; c <= criterionCount; c++)
+                {
+                    if (!double.TryParse(form[$"score_{o}_{c}"].ToString(), out double value))
+                        return Content($"Invalid score for Option {o}, Criterion {c}");
+
+                    scores.Add(new ScoreEntry
+                    {
+                        OptionName = options[o - 1].Name,
+                        CriterionName = criteria[c - 1].Name,
+                        Value = value
+                    });
+                }
+            }
+
+            int pairCount = int.TryParse(form["pairCount"].FirstOrDefault(), out int pc) ? pc : 0;
+            for (int p = 1; p <= pairCount; p++)
+            {
+                choices.Add(new ChooseFromTwo
+                {
+                    CriteriaA = form[$"pairA_{p}"].ToString(),
+                    CriteriaB = form[$"pairB_{p}"].ToString(),
+                    Winner = form[$"winner_{p}"].ToString()
+                });
+            }
+
+            var input = new DecisionInput
+            {
+                Options = options,
+                Criteria = criteria,
+                Scores = scores,
+                PairwiseChoices = choices
+            };
+
+            var results = _service.Calculate(input);
+
+            if (flairId > 0)
+            {
+                if (results.Any())
+                {
+                    _db.DecisionRecords.Add(new DecisionRecord
+                    {
+                        FlairId = flairId,
+                        WinningOption = results.First().Key,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                foreach (var option in options)
+                {
+                    _db.DecisionOptions.Add(new DecisionOption
+                    {
+                        FlairId = flairId,
+                        OptionName = option.Name,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                await _db.SaveChangesAsync();
+            }
+
+            ViewBag.Results = results;
+            ViewBag.FlairName = flairName;
+            return View("Result");
+        }
+    }
+}
