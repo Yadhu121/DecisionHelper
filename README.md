@@ -1,39 +1,39 @@
-#DECISION HELPER
+# DECISION HELPER
 A web based decision making tool made using ASP.NET Core MVC that helps to compare options based on weighted criteria.
 
-##MY UNDERSTANDING OF THE PROBLEM
+## MY UNDERSTANDING OF THE PROBLEM
 My understanding of the problem was that I had to make a decision making system which gives the best decision to the user from the options the user listed.
 Users should be able to define n number of options, their criteria's which affect their decision, how much a criteria affects their decision and also the values of criteria's of each option.
 This system solves the problem of user not being able to take a decision because of their emotion.
 
-##ASSUMPTIONS MADE
+## ASSUMPTIONS MADE
 Users can enter the values of every criteria for each option: Either decimal of Integer and not fixed to a limit to allow flexibility for a real world number such as distance.
 
 Higher is not always better: There can be criteria's where 
 
-##WHY I STRUCTURED THE SOLUTION THIS WAY
+## WHY I STRUCTURED THE SOLUTION THIS WAY
 
 The project follows an MVC design pattern so increase readability and scalability
 
-###DecisionController:
+### DecisionController:
     handles all the decision based things such as fetching recommendations.
 
-###AppDbContext:
+### AppDbContext:
     is the Entity Framework core of this project which keeps the database.
 
-###DecisionService:
+### DecisionService:
     Implements three steps: ROC(Rank Order Centroid) weight calculation, Pairwise comparison,, Min-Max Normalisation.
 
-###Models:
+### Models:
 	  DecisionInput, Option, Criterion, ScoreEntry, ChooseFromTwo:
 		  Data for table.
 
-###Flair, DecisionRecord and DecisionOptions:
+### Flair, DecisionRecord and DecisionOptions:
     are models which record what happened after a decision is made so that it can help with future recommendation to uses.
 
 Frontend is simple server rendered with HTML, vanilla JS and tailwind.
 
-###DecisionServive:
+### DecisionServive:
 
   Calculate function inside this service runs 3 steps,,
     1. ROC Weights: criteria's are ranked in the order of priority(In the order the user added them. User can also rearrange after adding.).
@@ -46,7 +46,7 @@ Frontend is simple server rendered with HTML, vanilla JS and tailwind.
   3. Normalised score: For each criterion, the scores are Mix-Max Normalised in the range 0 to 1. In cases where lower is better, the values are inverted to 1-value. Then the final score become weight * normalised score.
 
 
-##DESIGN DECISIONS AND TRADE-OFFS
+## DESIGN DECISIONS AND TRADE-OFFS
 
   Flair stored as string with check for duplication. This is simple to implement, allows case insensitive selection thus further preventing duplication.
     But there is no UI for flare management so deletion and editing of flair becomes hard.
@@ -55,7 +55,7 @@ Frontend is simple server rendered with HTML, vanilla JS and tailwind.
 
   User are to enter to value of each criteria to all the option in numbers. Makes the calculation simpler and UX better but some may find it hard to convert a physical feeling to a number. (In cases like taste of a food).
 
-##EGDE CASES CONSIDERED
+## EGDE CASES CONSIDERED
 
   Duplicate flair names: Controller searches does a case insensitive search to avoid duplivate flairs
 
@@ -72,13 +72,13 @@ Frontend is simple server rendered with HTML, vanilla JS and tailwind.
   Multiple options with same winning final score: The first option which was inputed is shown as the result
 
 
-##HOW TO RUN THE PROJECT
+## HOW TO RUN THE PROJECT
 
-###Prerequisites
+### Prerequisites
   .NET8 SDK
   SQL Server
 
-###Steps:
+### Steps:
   1. Clone the repository
 
 	  git clone https://github.com/Yadhu121//DecisionHelper
@@ -98,6 +98,7 @@ Frontend is simple server rendered with HTML, vanilla JS and tailwind.
   5. Open the browser and navigate to the the localhost:<portnumber>
 
 
-##WHAT I WOULD IMPROVE WITH MORE TIME
+## WHAT I WOULD IMPROVE WITH MORE TIME
     Flair management: Add an admin to manage the flair, rename, edit, delete them,
     Frontend: Switch to a scalable framework.
+
