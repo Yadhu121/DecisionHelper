@@ -16,20 +16,20 @@ Higher is not always better: There can be criteria's where
 The project follows an MVC design pattern so increase readability and scalability
 
 ### DecisionController:
-    handles all the decision based things such as fetching recommendations.
+handles all the decision based things such as fetching recommendations.
 
 ### AppDbContext:
-    is the Entity Framework core of this project which keeps the database.
+is the Entity Framework core of this project which keeps the database.
 
 ### DecisionService:
-    Implements three steps: ROC(Rank Order Centroid) weight calculation, Pairwise comparison,, Min-Max Normalisation.
+Implements three steps: ROC(Rank Order Centroid) weight calculation, Pairwise comparison,, Min-Max Normalisation.
 
 ### Models:
-	  DecisionInput, Option, Criterion, ScoreEntry, ChooseFromTwo:
-		  Data for table.
+DecisionInput, Option, Criterion, ScoreEntry, ChooseFromTwo:
+	Data for table.
 
 ### Flair, DecisionRecord and DecisionOptions:
-    are models which record what happened after a decision is made so that it can help with future recommendation to uses.
+are models which record what happened after a decision is made so that it can help with future recommendation to uses.
 
 Frontend is simple server rendered with HTML, vanilla JS and tailwind.
 
@@ -38,8 +38,10 @@ Frontend is simple server rendered with HTML, vanilla JS and tailwind.
   Calculate function inside this service runs 3 steps,,
     1. ROC Weights: criteria's are ranked in the order of priority(In the order the user added them. User can also rearrange after adding.).
        Rank order centroid weights are calculated using
+	   
      		    weight(i) = (1/n) * (1/i + 1/(i+1) + 1/(i+2) + ... + 1/n)
-       Then the values of weight(i) is normalised to add up to 1. This gives the top criteria the most weight.
+				
+Then the values of weight(i) is normalised to add up to 1. This gives the top criteria the most weight.
   
   2. Pair wise comparison: For the top 3 criterion, a best of two comparison is made in which the user answers which is more important to them or are they equally important. If a criterion is selected, 12% of the weight        is transferred from the non chosen criteria to the chosen one. Then the weights are normalised again. This helps to adjust the ROC based weight to be adjusted more based on user preferences.
 
@@ -99,6 +101,7 @@ Frontend is simple server rendered with HTML, vanilla JS and tailwind.
 
 
 ## WHAT I WOULD IMPROVE WITH MORE TIME
-    Flair management: Add an admin to manage the flair, rename, edit, delete them,
-    Frontend: Switch to a scalable framework.
+Flair management: Add an admin to manage the flair, rename, edit, delete them,
+Frontend: Switch to a scalable framework.
+
 
