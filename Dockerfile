@@ -4,10 +4,10 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["DecisionHelper.csproj", "."]
-RUN dotnet restore
+COPY ["DecisionHelper/DecisionHelper.csproj", "DecisionHelper/"]
+RUN dotnet restore "DecisionHelper/DecisionHelper.csproj"
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish "DecisionHelper/DecisionHelper.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
