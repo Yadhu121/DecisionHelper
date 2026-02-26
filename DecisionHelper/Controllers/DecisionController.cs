@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using DecisionHelper.Data;
 using DecisionHelper.Models;
 using DecisionHelper.Services;
-using DecisionHelper.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DecisionHelper.Controllers
 {
@@ -10,16 +11,20 @@ namespace DecisionHelper.Controllers
     {
         private readonly DecisionService _service = new();
         private readonly AppDbContext _db;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public DecisionController(AppDbContext db)
+
+        public DecisionController(AppDbContext db, UserManager<IdentityUser> userManager)
         {
             _db = db;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
         {
             var flairs = await _db.Flairs.ToListAsync();
             ViewBag.Flairs = flairs;
+            ViewBag.IsLoggedIn = User.Identity?.IsAuthenticated ?? false;
             return View();
         }
 
@@ -63,6 +68,49 @@ namespace DecisionHelper.Controllers
                 .Where(o => o.FlairId == flairId)
                 .GroupBy(o => o.OptionName)
                 .Select(g => new { Option = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(5)
+                .ToListAsync();
+
+            return Json(top5);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyTopOptions(int flairId)
+        {
+            if (!(User.Identity?.IsAuthenticated ?? false))
+                return Json(new List<object>());
+
+            var userId = _userManager.GetUserId(User)!;
+
+            var top5 = await _db.UserDecisionOptions
+                .Where(o => o.UserId == userId && o.FlairId == flairId)
+                .GroupBy(o => o.OptionName)
+                .Select(g => new { Option = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(5)
+                .ToListAsync();
+
+            return Json(top5);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyTopCriteria(int flairId)
+        {
+            if (!(User.Identity?.IsAuthenticated ?? false))
+                return Json(new List<object>());
+
+            var userId = _userManager.GetUserId(User)!;
+
+            var top5 = await _db.UserCriteria
+                .Where(c => c.UserId == userId && c.FlairId == flairId)
+                .GroupBy(c => c.CriterionName)
+                .Select(g => new
+                {
+                    Option = g.Key,
+                    Count = g.Count(),
+                    IsHigher = g.Sum(x => x.IsHigher ? 1 : -1) >= 0
+                })
                 .OrderByDescending(x => x.Count)
                 .Take(5)
                 .ToListAsync();
@@ -173,6 +221,33 @@ namespace DecisionHelper.Controllers
                         OptionName = option.Name,
                         CreatedAt = DateTime.UtcNow
                     });
+                }
+                if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    var userId = _userManager.GetUserId(User)!;
+
+                    foreach (var option in options)
+                    {
+                        _db.UserDecisionOptions.Add(new UserDecisionOption
+                        {
+                            UserId = userId,
+                            FlairId = flairId,
+                            OptionName = option.Name,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+
+                    foreach (var criterion in criteria)
+                    {
+                        _db.UserCriteria.Add(new UserCriterion
+                        {
+                            UserId = userId,
+                            FlairId = flairId,
+                            CriterionName = criterion.Name,
+                            IsHigher = criterion.IsHigher,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
                 }
 
                 await _db.SaveChangesAsync();

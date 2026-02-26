@@ -1,0 +1,92 @@
+﻿@model DecisionHelper.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<style>
+    body {
+        background: #f0faf4;
+    }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+</style>
+
+<div class="flex justify-center" style="padding-top:12vh">
+    <h2 class="text-5xl font-bold tracking-tight"
+        style="font-family:'Betania Patmos',serif; color:#2D6A4F;">
+        Welcome <span style="color:#52B788">Back.</span>
+    </h2>
+</div>
+<p class="text-center mt-2 text-sm" style="color:#52B788;font-family:'Space Mono',monospace;">
+    Sign in to get personalised recommendations
+</p>
+
+<div class="max-w-sm mx-auto px-4 mt-8">
+    <div style="background:#fff;border-radius:20px;box-shadow:0 4px 20px rgba(45,106,79,0.10);padding:32px 28px;">
+
+        <form asp-action="Login" method="post">
+            <input type="hidden" name="ReturnUrl" value="@ViewBag.ReturnUrl" />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p style="color:#b91c1c;font-size:13px;font-family:'Space Mono',monospace;margin:0;">@error.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-family:'Space Mono',monospace;font-size:11px;
+                              color:#52B788;letter-spacing:0.1em;margin-bottom:6px;">EMAIL</label>
+                <input asp-for="Email" type="email" placeholder="you@example.com"
+                       style="width:100%;padding:10px 14px;border:2px solid #2D6A4F;border-radius:10px;
+                              font-family:'Space Mono',monospace;font-size:13px;color:#1B4332;
+                              outline:none;box-sizing:border-box;" />
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label style="display:block;font-family:'Space Mono',monospace;font-size:11px;
+                              color:#52B788;letter-spacing:0.1em;margin-bottom:6px;">PASSWORD</label>
+                <input asp-for="Password" type="password" placeholder="••••••••"
+                       style="width:100%;padding:10px 14px;border:2px solid #2D6A4F;border-radius:10px;
+                              font-family:'Space Mono',monospace;font-size:13px;color:#1B4332;
+                              outline:none;box-sizing:border-box;" />
+            </div>
+
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:20px;
+                          font-family:'Space Mono',monospace;font-size:12px;color:#2D6A4F;cursor:pointer;">
+                <input asp-for="RememberMe" type="checkbox"
+                       style="accent-color:#52B788;width:15px;height:15px;" />
+                Remember me
+            </label>
+
+            <button type="submit"
+                    style="width:100%;padding:12px;border-radius:999px;border:none;
+                           background:#2D6A4F;color:#fff;font-family:'Space Mono',monospace;
+                           font-size:14px;font-weight:600;cursor:pointer;
+                           box-shadow:0 4px 16px rgba(45,106,79,0.25);">
+                Sign In →
+            </button>
+        </form>
+
+        <p style="text-align:center;margin-top:20px;font-family:'Space Mono',monospace;
+                  font-size:12px;color:#52B788;">
+            No account?
+            <a asp-action="Register" style="color:#2D6A4F;font-weight:700;text-decoration:none;">
+                Register here
+            </a>
+        </p>
+    </div>
+
+    <div style="text-align:center;margin-top:16px;">
+        <a asp-controller="Decision" asp-action="Index"
+           style="font-family:'Space Mono',monospace;font-size:12px;color:#95D5B2;text-decoration:none;">
+            ← Continue without signing in
+        </a>
+    </div>
+</div>
