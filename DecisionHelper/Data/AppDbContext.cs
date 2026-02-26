@@ -14,5 +14,9 @@ namespace DecisionHelper.Data
         public DbSet<DecisionOption> DecisionOptions { get; set; }
         public DbSet<UserDecisionOption> UserDecisionOptions { get; set; }
         public DbSet<UserCriterion> UserCriteria { get; set; }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
     }
 }
