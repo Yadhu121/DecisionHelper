@@ -58,6 +58,7 @@
                               outline:none;box-sizing:border-box;" />
             </div>
 
+            <!-- Remember me -->
             <label style="display:flex;align-items:center;gap:8px;margin-bottom:20px;
                           font-family:'Space Mono',monospace;font-size:12px;color:#2D6A4F;cursor:pointer;">
                 <input asp-for="RememberMe" type="checkbox"
@@ -74,6 +75,7 @@
             </button>
         </form>
 
+        <!-- Link to registation page -->
         <p style="text-align:center;margin-top:20px;font-family:'Space Mono',monospace;
                   font-size:12px;color:#52B788;">
             No account?
@@ -83,6 +85,7 @@
         </p>
     </div>
 
+    <!-- To continue as guest -->
     <div style="text-align:center;margin-top:16px;">
         <a asp-controller="Decision" asp-action="Index"
            style="font-family:'Space Mono',monospace;font-size:12px;color:#95D5B2;text-decoration:none;">

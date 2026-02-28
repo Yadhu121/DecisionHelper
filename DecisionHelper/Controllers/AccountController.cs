@@ -4,6 +4,8 @@ using DecisionHelper.ViewModels;
 
 namespace DecisionHelper.Controllers
 {
+
+    //User Authentication
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -15,6 +17,7 @@ namespace DecisionHelper.Controllers
             _signInManager = signInManager;
         }
 
+        //Shows the registration form
         [HttpGet]
         public IActionResult Register(string? returnUrl = null)
         {
@@ -22,6 +25,7 @@ namespace DecisionHelper.Controllers
             return View();
         }
 
+        //Processes the registration form and creates a new user
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
@@ -43,6 +47,8 @@ namespace DecisionHelper.Controllers
             return View(model);
         }
 
+
+        //Shows thhe login form
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -50,6 +56,8 @@ namespace DecisionHelper.Controllers
             return View();
         }
 
+
+        //Processes the login form and validates the information
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -66,6 +74,7 @@ namespace DecisionHelper.Controllers
             return View(model);
         }
 
+        //Signs out the user and reditects the user to the decision page
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
@@ -73,6 +82,8 @@ namespace DecisionHelper.Controllers
             return RedirectToAction("Index", "Decision");
         }
 
+
+        //If url is null redirects to decision page
         private IActionResult RedirectToLocal(string? returnUrl)
         {
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
