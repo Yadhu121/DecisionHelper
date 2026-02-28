@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DecisionHelper.Controllers
 {
+    //Handles decision inputs, calculation, flair and personalised recommendation
     public class DecisionController : Controller
     {
         private readonly DecisionService _service = new();
@@ -19,7 +20,8 @@ namespace DecisionHelper.Controllers
             _db = db;
             _userManager = userManager;
         }
-
+        
+        //Shows the main decision page with available flairs and login
         public async Task<IActionResult> Index()
         {
             var flairs = await _db.Flairs.ToListAsync();
@@ -28,6 +30,7 @@ namespace DecisionHelper.Controllers
             return View();
         }
 
+        //Returns top 5 most used options for a selected flair
         [HttpGet]
         public async Task<IActionResult> Recommendations(int flairId)
         {
@@ -42,6 +45,8 @@ namespace DecisionHelper.Controllers
             return Json(top5);
         }
 
+
+        //Returns top 5 most used options for a selected flair by name
         [HttpGet]
         public async Task<IActionResult> RecommendationsByName(string flairName)
         {
@@ -61,6 +66,7 @@ namespace DecisionHelper.Controllers
             return Json(top5);
         }
 
+        // Returns top 5 most used options by all users for a selected flair
         [HttpGet]
         public async Task<IActionResult> TopOptions(int flairId)
         {
@@ -75,6 +81,8 @@ namespace DecisionHelper.Controllers
             return Json(top5);
         }
 
+        //Returns the top 5 options of the current user for a selected flair
+        //Returns empty if user is not authenticated
         [HttpGet]
         public async Task<IActionResult> MyTopOptions(int flairId)
         {
@@ -94,6 +102,8 @@ namespace DecisionHelper.Controllers
             return Json(top5);
         }
 
+        //Returns the top5 criteria of the current user for a selected flair
+        //Returns empty if the user is not authenticated
         [HttpGet]
         public async Task<IActionResult> MyTopCriteria(int flairId)
         {
@@ -118,6 +128,7 @@ namespace DecisionHelper.Controllers
             return Json(top5);
         }
 
+        //Weighted calculation
         [HttpPost]
         public async Task<IActionResult> Calculate(IFormCollection form)
         {
@@ -139,6 +150,7 @@ namespace DecisionHelper.Controllers
                 var flair = await _db.Flairs
                     .FirstOrDefaultAsync(f => f.Name.ToLower() == flairName.ToLower());
 
+                //Creates flair if it doesnt exist
                 if (flair == null)
                 {
                     flair = new Flair { Name = flairName };
@@ -180,6 +192,7 @@ namespace DecisionHelper.Controllers
                 }
             }
 
+            //Pairwise comparison
             int pairCount = int.TryParse(form["pairCount"].FirstOrDefault(), out int pc) ? pc : 0;
             for (int p = 1; p <= pairCount; p++)
             {

@@ -6,6 +6,7 @@ namespace DecisionHelper.Services
     {
         private const double AddValue = 0.12;
 
+        //Calculates ROC weights for n number of criteria
         private double[] CalculateROCweights(int n)
         {
             if (n == 0) return Array.Empty<double>();
@@ -23,6 +24,7 @@ namespace DecisionHelper.Services
             return raw.Select(w => w / total).ToArray();
         }
 
+        //Adjusts the weights of the top 3 criteria based on user's preference
         private void ApplyPairwiseNudges(
             double[] weights,
             List<Criterion> criteria,
@@ -52,6 +54,7 @@ namespace DecisionHelper.Services
             }
         }
 
+        //Normalizes the weight to 1
         private void Normalize(double[] weights)
         {
             double total = weights.Sum();
@@ -60,6 +63,7 @@ namespace DecisionHelper.Services
                 weights[i] /= total;
         }
 
+        //Calucates ROC, pairwise calculation, normalizes, scores each option
         public Dictionary<string, double> Calculate(DecisionInput input)
         {
             double[] weights = CalculateROCweights(input.Criteria.Count);
@@ -96,6 +100,7 @@ namespace DecisionHelper.Services
                 }
             }
 
+            //Returns options sorted from highest to lowest score
             return results
                 .OrderByDescending(x => x.Value)
                 .ToDictionary(x => x.Key, x => x.Value);
