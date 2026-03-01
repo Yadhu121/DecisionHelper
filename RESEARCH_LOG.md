@@ -1,4 +1,4 @@
-\## AI PROMPTS USED
+## AI PROMPTS USED
  
 How to do weighted calculation
  
@@ -114,7 +114,7 @@ Should I add a login feature so that we can give logged in users custom personal
  
 How to migrate form sqlserver to postgresql
  
-\## GOOGLE SEARCHES
+## GOOGLE SEARCHES
  
 Decision making system
  
@@ -134,25 +134,25 @@ npgsql postgreSQL .net
  
 topsis geeksforgeeks
  
-\## REFERENCES THAT INFLUENCES THE APPROACH
+## REFERENCES THAT INFLUENCES THE APPROACH
  
-\### [decisionchamp.com](http://decisionchamp.com) 
+### [decisionchamp.com](http://decisionchamp.com) 
  
 This website which I found during the initial search influenced my approach. Though I didn't fully make something like this, this is what helped me start. I used it as an overall reference and modified in a way I think is better.
  
-\### Reddit flair system:
+### Reddit flair system:
  
 The concept of flairs while adding posts in reddit gave me the idea to add flairs in this which would help to track what the decision is about and hence help to give recommendations.
  
-\### Analytic hierarchy process:
+### Analytic hierarchy process:
  
 First learnt about this to use this as a full weighting method for the entire project but finally decided to use it for pair wise comparison of the top 3 criterion as it makes it hard with increase in number of options.
  
-\### Rank order centroid:
+### Rank order centroid:
  
 Used this as the primary weight system after looking into order based weighting process.
  
-\### [tailwind.build](http://tailwind.build) :
+### [tailwind.build](http://tailwind.build) :
  
 Usesd this to refer tailwind classes
  
@@ -160,55 +160,54 @@ Usesd this to refer tailwind classes
  
 Used to host the website
  
-\## What Was Accepted, Rejected, or Modified from AI Outputs
+## What Was Accepted, Rejected, or Modified from AI Outputs
  
-\### Accepted:
+### Accepted:
  
-\#### ROC weight formula:
+#### ROC weight formula:
  
 The formula and for calculating ROC weights were take and implemented directly after manual verification.
  
-\#### Min max normalisation formula:
+#### Min max normalisation formula:
  
 The main formula and the formula for lower is better criterions were accepted from AI.
  
-\#### LINQ methods:
+#### LINQ methods:
  
 LINQ patterns for queries were used.
  
-\#### EF core:
+#### EF core:
  
 AI also helped with EF core patterns
  
-\### Rejected:
+### Rejected:
  
-\#### TOPSIS:
+#### TOPSIS:
  
 This websites decides on user priorities. The method I used makes it easier to understand why we got the final result.
  
-\#### Full AHP:
+#### Full AHP:
  
 Full AHP would lead to very high number of matching to be done when the number of criteria is increased.
  
-\#### Weights directly assigned by the user:
+#### Weights directly assigned by the user:
  
 This is not done considering the fact that user may not be able to convert their feeling to preference of one criteria over another into exactly a number.
  
-\#### Slider based approach:
+#### Slider based approach:
  
 This was also rejected as it would bring the need to add a limit which mean that some real world things like price should also fit inside that limit.
  
-\#### Showing all the past options as recommendations:
+#### Showing all the past options as recommendations:
  
 This was suggested but was rejected as I though this would be irritating or even hard to find an option from it even if they wish to.
  
-\### Modified:
+### Modified:
  
-\#### Pairwise comparison:
+#### Pairwise comparison:
  
 The full AHP suggested my AI was modified to just do the top3
  
-
-\##### Flair changed to optional:
+##### Flair changed to optional:
  
 The flair was suggested to be set as required instead made it optional to let the user choose
