@@ -136,7 +136,7 @@ topsis geeksforgeeks
  
 ## REFERENCES THAT INFLUENCES THE APPROACH
  
-### [decisionchamp.com](http://decisionchamp.com) 
+### decisionchamp
  
 This website which I found during the initial search influenced my approach. Though I didn't fully make something like this, this is what helped me start. I used it as an overall reference and modified in a way I think is better.
  
@@ -152,11 +152,11 @@ First learnt about this to use this as a full weighting method for the entire pr
  
 Used this as the primary weight system after looking into order based weighting process.
  
-### [tailwind.build](http://tailwind.build) :
+### tailwind.build :
  
 Usesd this to refer tailwind classes
  
-###[railway.com](http://railway.com) :
+### railway.com :
  
 Used to host the website
  
